@@ -20,22 +20,25 @@ class VoyagesController extends AbstractController {
         $visites = $this->repository->findAllOrderBy('datecreation', 'DESC');
         return $this->render("pages/voyages.html.twig", ['visites' => $visites]);
     }
-    
-    #[Route('/voyages/tri/{champ}/{ordre}', name : 'voyages.sort')]
-    public function sort($champ,$ordre) : Response {
-        $visites = $this->repository->findAllOrderBy($champ,$ordre);
+
+    #[Route('/voyages/tri/{champ}/{ordre}', name: 'voyages.sort')]
+    public function sort($champ, $ordre): Response {
+        $visites = $this->repository->findAllOrderBy($champ, $ordre);
         return $this->render("pages/voyages.html.twig", ['visites' => $visites]);
     }
-    
-    #[Route('/voyages/recherches/{champ}', name : 'voyages.findallequal')]
-    public function findAllEqual($champ, Request $request) : Response {
-        $valeur = $request->get("recherche");
-        $visites = $this->repository->findByEqualValue($champ, $valeur);
-        return $this->render("pages/voyages.html.twig", ['visites' => $visites]);
+
+    #[Route('/voyages/recherches/{champ}', name: 'voyages.findallequal')]
+    public function findAllEqual($champ, Request $request): Response {
+        if ($this->isCsrfTokenValid('filtr_' . $champ, $request->get('_token'))) {
+            $valeur = $request->get("recherche");
+            $visites = $this->repository->findByEqualValue($champ, $valeur);
+            return $this->render("pages/voyages.html.twig", ['visites' => $visites]);
+        }
+        return $this->redirectToRoute('voyages');
     }
-    
-    #[Route('/voyages/voyage/{id}', name : 'voyage.showone')]
-    public function showOne($id) : Response {
+
+    #[Route('/voyages/voyage/{id}', name: 'voyage.showone')]
+    public function showOne($id): Response {
         $visite = $this->repository->find($id);
         return $this->render("pages/voyage.html.twig", ['visite' => $visite]);
     }
